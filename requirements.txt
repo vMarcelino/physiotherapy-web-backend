@@ -1,0 +1,13 @@
+flask
+flask-cors
+flask-restful
+flask-sqlalchemy
+sqlalchemy-utils
+pyjwt
+travel-backpack
+python-dateutil
+pymysql
+typing-extensions
+Pillow
+requests
+requests-futures
