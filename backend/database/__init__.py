@@ -1,6 +1,8 @@
 from __future__ import annotations
+from backend.jwt_classes.classes import Patient
 from dataclasses import dataclass
 import datetime
+from enum import unique
 import json
 import math
 from typing import (
@@ -60,23 +62,123 @@ def init_app(app):
     db.init_app(app)
 
 
-class User(*Base):  # type: ignore
-    # required
+class Authorization(*Base):  #type: ignore
     id = Column(Index, primary_key=True)
-    email = Column(StringSmall, unique=True)
-    name = Column(StringSmall)
-    password = Column(Binary(64))
-    salt = Column(Binary(128))
 
-    def to_jwt_object(self, auth: bool, subject: Union[User, int]):
+    # relationships
+    _patient: Optional[Patient] = relationship('Patient', back_populates='authorization', uselist=False)
+    _professional: Optional[Professional] = relationship('Professional', back_populates='authorization', uselist=False)
+
+    @property
+    def owner(self):
+        if self._patient is not None:
+            return self._patient
+        elif self._professional is not None:
+            return self._professional
+        else:
+            raise Exception('patient or professional must be valid')
+
+    def to_jwt_object(self, subject: Union[Authorization, int]):
         s: int
-        if isinstance(subject, User):
+        if isinstance(subject, Authorization):
             s = subject.id
         else:
             s = subject
 
-        return jwt_classes.User(subject=s, user_id=self.id, name=self.name, auth=auth, email=self.email)
+        return jwt_classes.Authorization(subject=s, _id=self.id)
 
-    def to_jwt(self, auth: bool, subject: Union[User, int]):
-        jwt_obj = self.to_jwt_object(auth=auth, subject=subject)
+    def to_jwt(self, subject: Union[Authorization, int]):
+        jwt_obj = self.to_jwt_object(subject=subject)
         return jwt_obj.to_jwt()
+
+
+class Patient(*Base):  # type: ignore
+    # required
+    id = Column(Index, primary_key=True)
+    email = Column(StringSmall, unique=True)
+    name = Column(StringSmall)
+    cpf = Column(StringSmall, unique=True)
+    password = Column(Binary(64))
+    salt = Column(Binary(128))
+    authorization_id = Column(Index, ForeignKey(Authorization.id))
+
+    # relationships
+    authorization: Authorization = relationship(Authorization, back_populates='_patient')
+    _links: List[Link] = relationship('Link', back_populates='patient')
+
+    @property
+    def links(self):
+        return [l for l in self._links if l.accepted]
+
+    @property
+    def invites(self):
+        return [l for l in self._links if not l.accepted]
+
+    def to_jwt_object(self, subject: Union[Authorization, int]):
+        s: int
+        if isinstance(subject, Authorization):
+            s = subject.id
+        else:
+            s = subject
+
+        return jwt_classes.Patient(subject=s, _id=self.id, name=self.name, email=self.email, cpf=self.cpf)
+
+    def to_jwt(self, subject: Union[Authorization, int]):
+        jwt_obj = self.to_jwt_object(subject=subject)
+        return jwt_obj.to_jwt()
+
+
+class Professional(*Base):  # type: ignore
+    # required
+    id = Column(Index, primary_key=True)
+    email = Column(StringSmall, unique=True)
+    name = Column(StringSmall)
+    cpf = Column(StringSmall, unique=True)
+    registration_id = Column(StringSmall, unique=True)
+    institution = Column(StringSmall)
+    password = Column(Binary(64))
+    salt = Column(Binary(128))
+    authorization_id = Column(Index, ForeignKey(Authorization.id))
+
+    # relationships
+    authorization: Authorization = relationship(Authorization, back_populates='_professional')
+    _links: List[Link] = relationship('Link', back_populates='professional')
+
+    @property
+    def links(self):
+        return [l for l in self._links if l.accepted]
+
+    @property
+    def invites(self):
+        return [l for l in self._links if not l.accepted]
+
+    def to_jwt_object(self, subject: Union[Authorization, int], access_level: AccessLevels):
+        s: int
+        if isinstance(subject, Authorization):
+            s = subject.id
+        else:
+            s = subject
+
+        return jwt_classes.Professional(subject=s,
+                                        access_level=access_level,
+                                        _id=self.id,
+                                        name=self.name,
+                                        email=self.email,
+                                        cpf=self.cpf,
+                                        registration_id=self.registration_id,
+                                        institution=self.institution)
+
+    def to_jwt(self, subject: Union[Authorization, int], access_level: AccessLevels):
+        jwt_obj = self.to_jwt_object(subject=subject, access_level=access_level)
+        return jwt_obj.to_jwt()
+
+
+class Link(*Base):  # type: ignore
+    id = Column(Index, primary_key=True)
+    patient_id = Column(Index, ForeignKey(Patient.id))
+    professional_id = Column(Index, ForeignKey(Professional.id))
+    accepted = Column(Boolean, default=False)
+
+    # relationships
+    patient: Patient = relationship(Patient, back_populates='_links')
+    professional: Professional = relationship(Professional, back_populates='_links')

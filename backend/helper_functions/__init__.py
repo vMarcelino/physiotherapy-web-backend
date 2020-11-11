@@ -181,7 +181,7 @@ def to_dict(**kwargs):
 
 def check_user_auth_token(token: str):
     try:
-        return jwt_classes.User.from_jwt(token, subject=None)
+        return jwt_classes.Authorization.from_jwt(token, subject=None)
 
     except jwt_classes.JwtObjectDecodeError as ex:
         print(ex)

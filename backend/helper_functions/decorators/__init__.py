@@ -158,7 +158,7 @@ def args_from_json(func):
         token = flask.request.cookies.get('Authorization', None)
         subject = None
         if token is not None:
-            subject = jwt_classes.User.from_jwt(token, subject=None).user_id
+            subject = jwt_classes.Authorization.from_jwt(token, subject=None)._id
         args = check_parameters(source=json, func=func, type_check=check_types, subject=subject)
         return func(self, **args)
 
@@ -190,7 +190,7 @@ def args_from_urlencoded(func):
         token = flask.request.cookies.get('Authorization', None)
         subject = None
         if token is not None:
-            subject = jwt_classes.User.from_jwt(token, subject=None).user_id
+            subject = jwt_classes.Authorization.from_jwt(token, subject=None)._id
         args = check_parameters(source=query_args, func=func, type_check=convert_types, subject=subject)
         return func(self, **args)
 
@@ -245,20 +245,16 @@ def inject_user_from_authorization(func):
             )
 
         token = flask.request.cookies['Authorization']
-        user = check_user_auth_token(token)
-        auth = getattr(user, 'auth', False)
-        if not auth:
-            flask.abort(HTTPStatus.UNAUTHORIZED, description='Invalid Token. Authorization failed')
-        if user.sub != user.user_id:
-            # not sure if this should happen at all
-            flask.abort(HTTPStatus.UNAUTHORIZED, description='Invalid Token. Authorization failed')
+        authorization = check_user_auth_token(token)
 
         if issubclass(param_type, int):
-            return func(self, user.user_id, *args, **kwargs)
-        elif issubclass(param_type, jwt_classes.User):
-            return func(self, user, *args, **kwargs)
-        elif issubclass(param_type, database.User):
-            u = database.User.get(user.user_id)
+            return func(self, authorization._id, *args, **kwargs)
+        elif issubclass(param_type, jwt_classes.Authorization):
+            return func(self, authorization, *args, **kwargs)
+        elif issubclass(param_type, database.Authorization):
+            u = database.Authorization.get(authorization._id)
+            if u is None:
+                raise Exception('Authorization not found in database')
             return func(self, u, *args, **kwargs)
         else:
             raise NotImplementedError('The annotated type is not supported yet')

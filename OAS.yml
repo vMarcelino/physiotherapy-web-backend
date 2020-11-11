@@ -1,0 +1,188 @@
+basePath: /api/v1
+host: localhost:5000
+info:
+  title: Physiotherapy platform backend api doc
+  version: 1.0.0
+paths:
+  /accesstest: {}
+  /logout: {}
+  /patient/link:
+    get:
+      parameters: []
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - PatientLinking
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            accept:
+              type: boolean
+            professional_token:
+              type: string
+          required:
+          - professional_token
+          - accept
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - PatientLinking
+  /patient/login:
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+            remember_login:
+              type: boolean
+          required:
+          - email
+          - password
+          - remember_login
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - PatientLogin
+  /patient/signup:
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            cpf:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            password:
+              type: string
+            remember_login:
+              type: boolean
+          required:
+          - email
+          - name
+          - password
+          - cpf
+          - remember_login
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - PatientSignup
+  /professional/link:
+    get:
+      parameters: []
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - ProfessionalLinking
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            cpf:
+              type: string
+          required:
+          - cpf
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - ProfessionalLinking
+  /professional/login:
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+            remember_login:
+              type: boolean
+          required:
+          - email
+          - password
+          - remember_login
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - ProfessionalLogin
+  /professional/signup:
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            cpf:
+              type: string
+            email:
+              type: string
+            institution:
+              type: string
+            name:
+              type: string
+            password:
+              type: string
+            registration_id:
+              type: string
+            remember_login:
+              type: boolean
+          required:
+          - email
+          - name
+          - password
+          - cpf
+          - registration_id
+          - institution
+          - remember_login
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - ProfessionalSignup
+schemes:
+- https
+- http
+swagger: '2.0'
+tags:
+- name: PatientSignup
+- name: PatientLogin
+- name: ProfessionalSignup
+- name: ProfessionalLogin
+- name: Logout
+- name: ProfessionalLinking
+- name: PatientLinking
+- name: AccessTest

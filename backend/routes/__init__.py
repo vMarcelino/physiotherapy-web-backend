@@ -5,12 +5,13 @@ from travel_backpack.decorators import decorate_all_methods
 from backend import helper_functions
 from backend.routes.access_test import AccessTest
 
-from backend.routes.login import Login
+from backend.routes.login import PatientLogin, ProfessionalLogin
 from backend.routes.logout import Logout
 
-from backend.routes.signup import Signup
+from backend.routes.signup import PatientSignup, ProfessionalSignup
 
-from backend.routes.user import User
+from backend.routes.professional import ProfessionalLinking
+from backend.routes.patient import PatientLinking
 
 api = flask_restful.Api()
 
@@ -30,12 +31,16 @@ def add_api_resource(resource, *routes):
     docs[doc_route] = resource
     return add_resource(resource, *['/api/v1' + route for route in routes])
 
+
 # api routes
-add_api_resource(Signup, '/signup')
-add_api_resource(Login, '/login')
+add_api_resource(PatientSignup, '/patient/signup')
+add_api_resource(PatientLogin, '/patient/login')
+add_api_resource(ProfessionalSignup, '/professional/signup')
+add_api_resource(ProfessionalLogin, '/professional/login')
 add_api_resource(Logout, '/logout')
 
-add_api_resource(User, '/user')
+add_api_resource(ProfessionalLinking, '/professional/link')
+add_api_resource(PatientLinking, '/patient/link')
 
 add_api_resource(AccessTest, '/accesstest')
 
