@@ -5,7 +5,7 @@ from travel_backpack.decorators import decorate_all_methods
 from backend import helper_functions
 from backend.routes.access_test import AccessTest
 
-from backend.routes.login import PatientLogin, ProfessionalLogin
+from backend.routes.login import Login
 from backend.routes.logout import Logout
 
 from backend.routes.signup import PatientSignup, ProfessionalSignup
@@ -34,9 +34,8 @@ def add_api_resource(resource, *routes):
 
 # api routes
 add_api_resource(PatientSignup, '/patient/signup')
-add_api_resource(PatientLogin, '/patient/login')
 add_api_resource(ProfessionalSignup, '/professional/signup')
-add_api_resource(ProfessionalLogin, '/professional/login')
+add_api_resource(Login, '/login')
 add_api_resource(Logout, '/logout')
 
 add_api_resource(ProfessionalLinking, '/professional/link')

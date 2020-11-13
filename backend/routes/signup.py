@@ -1,3 +1,4 @@
+from backend.jwt_classes.access_levels import AccessLevels
 from typing import Optional, Sequence
 import flask_restful
 from http import HTTPStatus
@@ -12,7 +13,7 @@ class PatientSignup(flask_restful.Resource):
     def post(self, email: str, name: str, password: str, cpf: str, remember_login: bool):
         email = email.lower()
 
-        existing_user: Optional[db.Patient] = db.Patient.query.filter_by(email=email).one_or_none()
+        existing_user: Optional[db.Authorization] = db.Authorization.query.filter_by(email=email).one_or_none()
 
         if existing_user is None:
             # existing_user_with_id = db.User.query.filter(db.User.personal_id == id).one_or_none()
@@ -22,24 +23,22 @@ class PatientSignup(flask_restful.Resource):
             if len(password) >= CONSTANTS.min_password_len:
                 salt = helper_functions.generate_salt()
                 hashed_password = helper_functions.hash_with_salt(password.encode('utf-8'), salt)
-                new_user = db.Patient(password=hashed_password,
-                                      email=email,
-                                      salt=salt,
-                                      name=name,
+                new_user = db.Patient(name=name,
                                       cpf=cpf,
-                                      authorization=db.Authorization())
+                                      authorization=db.Authorization(email=email, password=hashed_password, salt=salt))
 
                 db.db.session.add(new_user)
                 db.db.session.commit()
 
-                patient_token = new_user.to_jwt(subject=new_user.authorization_id)  # must be after commit to have id
+                patient_token = new_user.to_jwt(subject=new_user.authorization_id,
+                                                access_level=AccessLevels.private)  # must be after commit to have id
                 patient_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
 
                 cookie = f'Authorization={patient_auth_token}; Secure; HttpOnly; SameSite=Lax'
                 if remember_login:
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
                 if not CONSTANTS.debug:
-                    cookie +='; secure'
+                    cookie += '; secure'
 
                 return {'token': patient_token}, HTTPStatus.CREATED, {'Set-Cookie': cookie}
 
@@ -56,7 +55,7 @@ class ProfessionalSignup(flask_restful.Resource):
              remember_login: bool):
         email = email.lower()
 
-        existing_user: Optional[db.Professional] = db.Professional.query.filter_by(email=email).one_or_none()
+        existing_user: Optional[db.Authorization] = db.Authorization.query.filter_by(email=email).one_or_none()
 
         if existing_user is None:
             # existing_user_with_id = db.User.query.filter(db.User.personal_id == id).one_or_none()
@@ -66,27 +65,25 @@ class ProfessionalSignup(flask_restful.Resource):
             if len(password) >= CONSTANTS.min_password_len:
                 salt = helper_functions.generate_salt()
                 hashed_password = helper_functions.hash_with_salt(password.encode('utf-8'), salt)
-                new_user = db.Patient(password=hashed_password,
-                                      email=email,
-                                      salt=salt,
-                                      name=name,
+                new_user = db.Patient(name=name,
                                       cpf=cpf,
                                       registration_id=registration_id,
                                       institution=institution,
-                                      authorization=db.Authorization())
+                                      authorization=db.Authorization(email=email, password=hashed_password, salt=salt))
 
                 db.db.session.add(new_user)
                 db.db.session.commit()
 
                 professional_token = new_user.to_jwt(
-                    subject=new_user.authorization_id)  # must be after commit to have id
+                    subject=new_user.authorization_id,
+                    access_level=AccessLevels.private)  # must be after commit to have id
                 professional_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
 
                 cookie = f'Authorization={professional_auth_token}; Secure; HttpOnly; SameSite=Lax'
                 if remember_login:
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
                 if not CONSTANTS.debug:
-                    cookie +='; secure'
+                    cookie += '; secure'
 
                 return {'token': professional_token}, HTTPStatus.CREATED, {'Set-Cookie': cookie}
 

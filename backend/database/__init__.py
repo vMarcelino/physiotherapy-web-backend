@@ -64,6 +64,9 @@ def init_app(app):
 
 class Authorization(*Base):  #type: ignore
     id = Column(Index, primary_key=True)
+    email = Column(StringSmall, unique=True)
+    password = Column(Binary(64))
+    salt = Column(Binary(128))
 
     # relationships
     _patient: Optional[Patient] = relationship('Patient', back_populates='authorization', uselist=False)
@@ -95,11 +98,8 @@ class Authorization(*Base):  #type: ignore
 class Patient(*Base):  # type: ignore
     # required
     id = Column(Index, primary_key=True)
-    email = Column(StringSmall, unique=True)
     name = Column(StringSmall)
     cpf = Column(StringSmall, unique=True)
-    password = Column(Binary(64))
-    salt = Column(Binary(128))
     authorization_id = Column(Index, ForeignKey(Authorization.id))
 
     # relationships
@@ -114,30 +114,32 @@ class Patient(*Base):  # type: ignore
     def invites(self):
         return [l for l in self._links if not l.accepted]
 
-    def to_jwt_object(self, subject: Union[Authorization, int]):
+    def to_jwt_object(self, subject: Union[Authorization, int], access_level: AccessLevels):
         s: int
         if isinstance(subject, Authorization):
             s = subject.id
         else:
             s = subject
 
-        return jwt_classes.Patient(subject=s, _id=self.id, name=self.name, email=self.email, cpf=self.cpf)
+        return jwt_classes.Patient(subject=s,
+                                   access_level=access_level,
+                                   _id=self.id,
+                                   name=self.name,
+                                   email=self.authorization.email,
+                                   cpf=self.cpf)
 
-    def to_jwt(self, subject: Union[Authorization, int]):
-        jwt_obj = self.to_jwt_object(subject=subject)
+    def to_jwt(self, subject: Union[Authorization, int], access_level: AccessLevels):
+        jwt_obj = self.to_jwt_object(subject=subject, access_level=access_level)
         return jwt_obj.to_jwt()
 
 
 class Professional(*Base):  # type: ignore
     # required
     id = Column(Index, primary_key=True)
-    email = Column(StringSmall, unique=True)
     name = Column(StringSmall)
     cpf = Column(StringSmall, unique=True)
     registration_id = Column(StringSmall, unique=True)
     institution = Column(StringSmall)
-    password = Column(Binary(64))
-    salt = Column(Binary(128))
     authorization_id = Column(Index, ForeignKey(Authorization.id))
 
     # relationships
@@ -163,7 +165,7 @@ class Professional(*Base):  # type: ignore
                                         access_level=access_level,
                                         _id=self.id,
                                         name=self.name,
-                                        email=self.email,
+                                        email=self.authorization.email,
                                         cpf=self.cpf,
                                         registration_id=self.registration_id,
                                         institution=self.institution)

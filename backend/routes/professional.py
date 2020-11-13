@@ -40,4 +40,6 @@ class ProfessionalLinking(flask_restful.Resource):
         if not isinstance(authorization.owner, db.Professional):
             return 'Only professionals are allowed to access this resource', HTTPStatus.FORBIDDEN
         professional: db.Professional = authorization.owner
-        return [{'token': t.patient.to_jwt(subject=authorization)} for t in professional.links]
+        return [{
+            'token': t.patient.to_jwt(subject=authorization, access_level=AccessLevels.personal)
+        } for t in professional.links]

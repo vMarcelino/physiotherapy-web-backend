@@ -5,6 +5,30 @@ info:
   version: 1.0.0
 paths:
   /accesstest: {}
+  /login:
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+            remember_login:
+              type: boolean
+          required:
+          - email
+          - password
+          - remember_login
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - Login
   /logout: {}
   /patient/link:
     get:
@@ -34,30 +58,6 @@ paths:
           description: missing fields
       tags:
       - PatientLinking
-  /patient/login:
-    post:
-      parameters:
-      - in: body
-        name: parameters
-        required: true
-        schema:
-          properties:
-            email:
-              type: string
-            password:
-              type: string
-            remember_login:
-              type: boolean
-          required:
-          - email
-          - password
-          - remember_login
-          type: object
-      responses:
-        '400':
-          description: missing fields
-      tags:
-      - PatientLogin
   /patient/signup:
     post:
       parameters:
@@ -113,30 +113,6 @@ paths:
           description: missing fields
       tags:
       - ProfessionalLinking
-  /professional/login:
-    post:
-      parameters:
-      - in: body
-        name: parameters
-        required: true
-        schema:
-          properties:
-            email:
-              type: string
-            password:
-              type: string
-            remember_login:
-              type: boolean
-          required:
-          - email
-          - password
-          - remember_login
-          type: object
-      responses:
-        '400':
-          description: missing fields
-      tags:
-      - ProfessionalLogin
   /professional/signup:
     post:
       parameters:
@@ -179,9 +155,8 @@ schemes:
 swagger: '2.0'
 tags:
 - name: PatientSignup
-- name: PatientLogin
 - name: ProfessionalSignup
-- name: ProfessionalLogin
+- name: Login
 - name: Logout
 - name: ProfessionalLinking
 - name: PatientLinking
