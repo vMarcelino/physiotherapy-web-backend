@@ -16,8 +16,8 @@ class Login(flask_restful.Resource):
         if user:
             hashed_password = helper_functions.hash_with_salt(password.encode(), user.salt)
             if hashed_password == user.password:
-                user_auth_token = user.to_jwt(subject=user.authorization)
-                user_token = user.owner.to_jwt(subject=user.authorization, access_level=AccessLevels.private)
+                user_auth_token = user.to_jwt(subject=user)
+                user_token = user.owner.to_jwt(subject=user, access_level=AccessLevels.private)
                 cookie = f'Authorization={user_auth_token}; HttpOnly; SameSite=Lax'
                 if remember_login:
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
