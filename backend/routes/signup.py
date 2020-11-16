@@ -41,7 +41,7 @@ class PatientSignup(flask_restful.Resource):
                                                 access_level=AccessLevels.private)  # must be after commit to have id
                 patient_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
 
-                cookie = f'Authorization={patient_auth_token}; Secure; HttpOnly; SameSite=Lax'
+                cookie = f'Authorization={patient_auth_token}; HttpOnly; SameSite=Lax'
                 if remember_login:
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
                 if not CONSTANTS.debug:
@@ -94,7 +94,7 @@ class ProfessionalSignup(flask_restful.Resource):
                     access_level=AccessLevels.private)  # must be after commit to have id
                 professional_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
 
-                cookie = f'Authorization={professional_auth_token}; Secure; HttpOnly; SameSite=Lax'
+                cookie = f'Authorization={professional_auth_token}; HttpOnly; SameSite=Lax'
                 if remember_login:
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
                 if not CONSTANTS.debug:
