@@ -78,7 +78,8 @@ def create_OAS():
             for method in _extracted_docs[class_module][class_name]:
                 ed = _extracted_docs[class_module][class_name][method]
                 conf["paths"][path][method] = ed
-                conf["paths"][path][method]['responses'] = {"400": {"description": "missing fields"}}
+                if 'responses' not in conf["paths"][path][method] or len(conf["paths"][path][method]['responses']) == 0:
+                    conf["paths"][path][method]['responses'] = {"400": {"description": "missing fields"}}
                 conf["paths"][path][method]['tags'] = [class_name]
                 parameters = ed['parameters']
                 if parameters and 'schema' in parameters[0]:

@@ -17,7 +17,7 @@ class PatientLinking(flask_restful.Resource):
         if not isinstance(authorization.owner, db.Patient):
             return 'Only patients are allowed to access this resource', HTTPStatus.FORBIDDEN
         patient: db.Patient = authorization.owner
-        professional: Optional[db.Patient] = db.Professional.get(professional_token._id)
+        professional: Optional[db.Professional] = db.Professional.get(professional_token._id)
 
         if not professional:
             return 'Professional not found', HTTPStatus.NOT_FOUND

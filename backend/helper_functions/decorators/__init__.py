@@ -58,11 +58,31 @@ def check_parameters(source: Dict[str, Any], func, type_check: Callable[[Dict[st
 
 
 def extract_doc(func, location: str):
-    params = tuple(inspect.signature(func).parameters.values())[1:]  # remove first (self)
+    func_inspection = inspect.signature(func)
+    params = tuple(func_inspection.parameters.values())[1:]  # remove first (self)
     param_types = {p.name: p.annotation for p in params}
     param_defaults = {p.name: p.default for p in params}
     required_params = [p.name for p in params if p.default == p.empty]
     optional_params = {p.name: p.default for p in params if p.default != p.empty}
+
+    return_types = func_inspection.return_annotation
+    response_codes = {}
+    if hasattr(return_types, '__args__'):
+        for return_type in return_types.__args__:
+            if hasattr(return_type, '__origin__') and \
+                issubclass(return_type.__origin__, Tuple) and \
+                len(return_type.__args__) == 2 and \
+                hasattr(return_type.__args__[1], '__origin__') and \
+                return_type.__args__[1].__origin__ == Literal and \
+                isinstance(return_type.__args__[1].__args__[0], int):
+
+                return_annotation, return_code = return_type.__args__
+                return_code = int(return_code.__args__[0])
+                if hasattr(return_annotation, '__origin__') and return_annotation.__origin__ == Literal:
+                    return_annotation = return_annotation.__args__[0]
+                response_codes[return_code] = str(return_annotation)
+            else:
+                print(return_type)
 
     def to_OAS_type(t) -> str:
         if hasattr(t, '__origin__'):
@@ -109,7 +129,11 @@ def extract_doc(func, location: str):
                                    for p in params}
                 },
                 "required": True,
-            }]
+            }],
+            "responses": {str(k): {
+                "description": v
+            }
+                          for k, v in response_codes.items()}
         }
     else:
         return {
@@ -126,7 +150,11 @@ def extract_doc(func, location: str):
                     "required": False,
                     "default": param_defaults[param_name]
                 } for param_name in optional_params]
-            ]
+            ],
+            "responses": {str(k): {
+                "description": v
+            }
+                          for k, v in response_codes.items()}
         }
 
 
