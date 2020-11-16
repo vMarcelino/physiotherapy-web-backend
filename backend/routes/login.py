@@ -1,16 +1,25 @@
+from typing_extensions import Literal, TypedDict
 from backend.jwt_classes.access_levels import AccessLevels
 from backend.constants import CONSTANTS
 import flask_restful
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 from http import HTTPStatus
 
 from backend import helper_functions
 import backend.database as db
 
 
+class LoginReturnType(TypedDict):
+    token: str
+    type: str
+
+
 class Login(flask_restful.Resource):
     @helper_functions.args_from_json
-    def post(self, email: str, password: str, remember_login: bool):
+    def post(self, email: str, password: str, remember_login: bool)->Union[ \
+        Tuple[Literal['Wrong username or password'], Literal[HTTPStatus.UNAUTHORIZED]],
+        Tuple[LoginReturnType, Literal[HTTPStatus.OK], dict]
+        ]:
         email = email.lower()
         user: Optional[db.Authorization] = db.Authorization.query.filter_by(email=email).one_or_none()
         if user:
@@ -23,7 +32,9 @@ class Login(flask_restful.Resource):
                     cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
                 if not CONSTANTS.debug:
                     cookie += '; secure'
-                return {'token': user_token, 'type': type(user.owner).__name__}, HTTPStatus.OK, {'Set-Cookie': cookie}
+
+                returned_data: LoginReturnType = {'token': user_token, 'type': type(user.owner).__name__}
+                return returned_data, HTTPStatus.OK, {'Set-Cookie': cookie}
             else:
                 msg = "passwords don't match:\n"
                 msg += f"\tinput: {hashed_password} ({len(hashed_password)})\n"
@@ -34,4 +45,4 @@ class Login(flask_restful.Resource):
         else:
             print('User not found')
 
-        return 'wrong username or password', HTTPStatus.UNAUTHORIZED
+        return 'Wrong username or password', HTTPStatus.UNAUTHORIZED

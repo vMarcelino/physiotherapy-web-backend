@@ -27,6 +27,8 @@ paths:
       responses:
         '400':
           description: missing fields
+        '401':
+          description: Wrong username or password
       tags:
       - Login
   /logout: {}
@@ -34,8 +36,12 @@ paths:
     get:
       parameters: []
       responses:
+        '200':
+          description: typing.List[backend.routes.TokenObject]
         '400':
           description: missing fields
+        '403':
+          description: Only patients are allowed to access this resource
       tags:
       - PatientLinking
     post:
@@ -54,10 +60,30 @@ paths:
           - accept
           type: object
       responses:
+        '200':
+          description: Invite updated
         '400':
           description: missing fields
+        '403':
+          description: Only patients are allowed to access this resource
+        '404':
+          description: Professional not found
+        '409':
+          description: Professional already linked
       tags:
       - PatientLinking
+  /patient/sessions:
+    get:
+      parameters: []
+      responses:
+        '200':
+          description: typing.Dict[str, typing.List[typing.Dict[str, int]]]
+        '400':
+          description: missing fields
+        '403':
+          description: Only patients are allowed to access this resource
+      tags:
+      - PatientSessions
   /patient/signup:
     post:
       parameters:
@@ -86,14 +112,22 @@ paths:
       responses:
         '400':
           description: missing fields
+        '406':
+          description: Password too short. Minimum 8 characters long
+        '409':
+          description: Email already in use
       tags:
       - PatientSignup
   /professional/link:
     get:
       parameters: []
       responses:
+        '200':
+          description: typing.List[backend.routes.TokenObject]
         '400':
           description: missing fields
+        '403':
+          description: Only professionals are allowed to access this resource
       tags:
       - ProfessionalLinking
     post:
@@ -109,10 +143,36 @@ paths:
           - cpf
           type: object
       responses:
+        '200':
+          description: Invite created
         '400':
           description: missing fields
+        '403':
+          description: Only professionals are allowed to access this resource
+        '404':
+          description: Patient not found
+        '409':
+          description: Invite already exists
       tags:
       - ProfessionalLinking
+  /professional/sessions:
+    get:
+      parameters:
+      - in: query
+        name: patient_token
+        required: true
+        type: string
+      responses:
+        '200':
+          description: typing.Dict[str, typing.List[typing.Dict[str, int]]]
+        '400':
+          description: missing fields
+        '403':
+          description: Only professionals are allowed to access this resource
+        '404':
+          description: Patient not found
+      tags:
+      - ProfessionalPatientSessions
   /professional/signup:
     post:
       parameters:
@@ -147,8 +207,26 @@ paths:
       responses:
         '400':
           description: missing fields
+        '406':
+          description: Password too short. Minimum 8 characters long
+        '409':
+          description: Email already in use
       tags:
       - ProfessionalSignup
+  /video:
+    get:
+      parameters:
+      - in: query
+        name: video_id
+        required: true
+        type: integer
+      responses:
+        '400':
+          description: missing fields
+        '404':
+          description: Video not found
+      tags:
+      - Video
 schemes:
 - https
 - http
@@ -159,5 +237,8 @@ tags:
 - name: Login
 - name: Logout
 - name: ProfessionalLinking
+- name: ProfessionalPatientSessions
 - name: PatientLinking
+- name: PatientSessions
+- name: Video
 - name: AccessTest

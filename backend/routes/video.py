@@ -17,8 +17,9 @@ class Video(flask_restful.Resource):
     @helper_functions.args_from_urlencoded
     @inject_user_from_authorization
     def get(self, authorization: db.Authorization, video_id: int)->Union[ \
-        Tuple[Literal['Video not found'], Literal[ HTTPStatus.NOT_FOUND]],
-        flask.Response]:
+        Tuple[Literal['Video not found'], Literal[HTTPStatus.NOT_FOUND]],
+        flask.Response
+        ]:
 
         owner = authorization.owner
         video: Optional[db.VideoInfo]
@@ -50,8 +51,9 @@ class PatientSessions(flask_restful.Resource):
     @helper_functions.args_from_urlencoded
     @inject_user_from_authorization
     def get(self, authorization: db.Authorization)->Union[ \
-        Tuple[Literal['Only patients are allowed to access this resource'], Literal[ HTTPStatus.FORBIDDEN]],
-        Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]]:
+        Tuple[Literal['Only patients are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
+        Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]
+        ]:
 
         owner = authorization.owner
         if not isinstance(owner, db.Patient):
@@ -70,9 +72,10 @@ class ProfessionalPatientSessions(flask_restful.Resource):
     @helper_functions.args_from_urlencoded
     @inject_user_from_authorization
     def get(self, authorization: db.Authorization, patient_token: jwt_classes.Patient[Id])->Union[ \
-        Tuple[Literal['Only professionals are allowed to access this resource'], Literal[ HTTPStatus.FORBIDDEN]],
+        Tuple[Literal['Only professionals are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
         Tuple[Literal['Patient not found'], Literal[HTTPStatus.NOT_FOUND]],
-        Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]]:
+        Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]
+        ]:
 
         owner = authorization.owner
         if not isinstance(owner, db.Professional):

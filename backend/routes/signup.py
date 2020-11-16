@@ -1,5 +1,7 @@
+from backend.routes import TokenObject
+from typing_extensions import Literal
 from backend.jwt_classes.access_levels import AccessLevels
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple, Union
 import flask_restful
 from http import HTTPStatus
 
@@ -10,7 +12,12 @@ import backend.database as db
 
 class PatientSignup(flask_restful.Resource):
     @helper_functions.args_from_json
-    def post(self, email: str, name: str, password: str, cpf: str, remember_login: bool):
+    def post(self, email: str, name: str, password: str, cpf: str, remember_login: bool)->Union[ \
+        Tuple[str, Literal[HTTPStatus.NOT_ACCEPTABLE]], # to accomodate the variable content string in the literal below
+        Tuple[Literal[f'Password too short. Minimum {CONSTANTS.min_password_len} characters long'], Literal[HTTPStatus.NOT_ACCEPTABLE]],
+        Tuple[Literal['Email already in use'], Literal[HTTPStatus.CONFLICT]],
+        Tuple[TokenObject, Literal[HTTPStatus.CREATED], dict],
+        ]:
         email = email.lower()
 
         existing_user: Optional[db.Authorization] = db.Authorization.query.filter_by(email=email).one_or_none()
@@ -40,7 +47,8 @@ class PatientSignup(flask_restful.Resource):
                 if not CONSTANTS.debug:
                     cookie += '; secure'
 
-                return {'token': patient_token}, HTTPStatus.CREATED, {'Set-Cookie': cookie}
+                return_result: TokenObject = {'token': patient_token}
+                return return_result, HTTPStatus.CREATED, {'Set-Cookie': cookie}
 
             else:
                 return f'Password too short. Minimum {CONSTANTS.min_password_len} characters long', HTTPStatus.NOT_ACCEPTABLE
@@ -52,7 +60,12 @@ class PatientSignup(flask_restful.Resource):
 class ProfessionalSignup(flask_restful.Resource):
     @helper_functions.args_from_json
     def post(self, email: str, name: str, password: str, cpf: str, registration_id: str, institution: str,
-             remember_login: bool):
+             remember_login: bool)->Union[ \
+        Tuple[str, Literal[HTTPStatus.NOT_ACCEPTABLE]], # to accomodate the variable content string in the literal below
+        Tuple[Literal[f'Password too short. Minimum {CONSTANTS.min_password_len} characters long'], Literal[HTTPStatus.NOT_ACCEPTABLE]],
+        Tuple[Literal['Email already in use'], Literal[HTTPStatus.CONFLICT]],
+        Tuple[TokenObject, Literal[HTTPStatus.CREATED], dict],
+        ]:
         email = email.lower()
 
         existing_user: Optional[db.Authorization] = db.Authorization.query.filter_by(email=email).one_or_none()
@@ -87,7 +100,8 @@ class ProfessionalSignup(flask_restful.Resource):
                 if not CONSTANTS.debug:
                     cookie += '; secure'
 
-                return {'token': professional_token}, HTTPStatus.CREATED, {'Set-Cookie': cookie}
+                return_result: TokenObject = {'token': professional_token}
+                return return_result, HTTPStatus.CREATED, {'Set-Cookie': cookie}
 
             else:
                 return f'Password too short. Minimum {CONSTANTS.min_password_len} characters long', HTTPStatus.NOT_ACCEPTABLE

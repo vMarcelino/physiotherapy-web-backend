@@ -1,3 +1,10 @@
+from typing_extensions import TypedDict
+
+
+class TokenObject(TypedDict):
+    token: str
+
+
 from backend.routes.video import PatientSessions, ProfessionalPatientSessions, Video
 import flask
 import flask_restful

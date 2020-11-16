@@ -1,8 +1,10 @@
+from backend.routes import TokenObject
+from typing_extensions import Literal
 from backend.jwt_classes.access_levels import AccessLevels
 from backend.helper_functions import first_or_abort
 import flask_restful
 import flask
-from typing import Callable, List, Optional, Sequence, Dict, Any, Union
+from typing import Callable, List, Optional, Sequence, Dict, Any, Tuple, Union
 from http import HTTPStatus
 import json
 from backend import helper_functions
@@ -13,7 +15,12 @@ from backend import jwt_classes
 class ProfessionalLinking(flask_restful.Resource):
     @helper_functions.args_from_json
     @helper_functions.inject_user_from_authorization
-    def post(self, authorization: db.Authorization, cpf: str):
+    def post(self, authorization: db.Authorization, cpf: str)->Union[ \
+        Tuple[Literal['Only professionals are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
+        Tuple[Literal['Patient not found'], Literal[HTTPStatus.NOT_FOUND]],
+        Tuple[Literal['Invite already exists'], Literal[HTTPStatus.CONFLICT]],
+        Tuple[Literal['Invite created'], Literal[HTTPStatus.OK]],
+        ]:
         if not isinstance(authorization.owner, db.Professional):
             return 'Only professionals are allowed to access this resource', HTTPStatus.FORBIDDEN
         professional: db.Professional = authorization.owner
@@ -36,10 +43,16 @@ class ProfessionalLinking(flask_restful.Resource):
 
     @helper_functions.args_from_urlencoded
     @helper_functions.inject_user_from_authorization
-    def get(self, authorization: db.Authorization):
+    def get(self, authorization: db.Authorization)->Union[ \
+        Tuple[Literal['Only professionals are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
+        Tuple[List[TokenObject], Literal[HTTPStatus.OK]],
+        ]:
         if not isinstance(authorization.owner, db.Professional):
             return 'Only professionals are allowed to access this resource', HTTPStatus.FORBIDDEN
         professional: db.Professional = authorization.owner
-        return [{
-            'token': t.patient.to_jwt(subject=authorization, access_level=AccessLevels.personal)
-        } for t in professional.links]
+
+        def make_result(link: db.Link) -> TokenObject:
+            jwt = link.professional.to_jwt(subject=authorization, access_level=AccessLevels.personal)
+            return {'token': jwt}
+
+        return [make_result(link) for link in professional.links], HTTPStatus.OK
