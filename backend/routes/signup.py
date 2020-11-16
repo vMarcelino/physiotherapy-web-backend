@@ -65,11 +65,13 @@ class ProfessionalSignup(flask_restful.Resource):
             if len(password) >= CONSTANTS.min_password_len:
                 salt = helper_functions.generate_salt()
                 hashed_password = helper_functions.hash_with_salt(password.encode('utf-8'), salt)
-                new_user = db.Patient(name=name,
-                                      cpf=cpf,
-                                      registration_id=registration_id,
-                                      institution=institution,
-                                      authorization=db.Authorization(email=email, password=hashed_password, salt=salt))
+                new_user = db.Professional(name=name,
+                                           cpf=cpf,
+                                           registration_id=registration_id,
+                                           institution=institution,
+                                           authorization=db.Authorization(email=email,
+                                                                          password=hashed_password,
+                                                                          salt=salt))
 
                 db.db.session.add(new_user)
                 db.db.session.commit()

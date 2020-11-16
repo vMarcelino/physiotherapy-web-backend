@@ -17,7 +17,7 @@ class ProfessionalLinking(flask_restful.Resource):
         if not isinstance(authorization.owner, db.Professional):
             return 'Only professionals are allowed to access this resource', HTTPStatus.FORBIDDEN
         professional: db.Professional = authorization.owner
-        patient: Optional[db.Patient] = db.Patient.query.filter(db.Patient.cpf == cpf).one()
+        patient: Optional[db.Patient] = db.Patient.query.filter(db.Patient.cpf == cpf).one_or_none()
 
         if not patient:
             return 'Patient not found', HTTPStatus.NOT_FOUND
