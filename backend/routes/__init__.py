@@ -1,3 +1,4 @@
+from backend.routes.video import PatientSessions, ProfessionalPatientSessions, Video
 import flask
 import flask_restful
 from travel_backpack.decorators import decorate_all_methods
@@ -39,7 +40,12 @@ add_api_resource(Login, '/login')
 add_api_resource(Logout, '/logout')
 
 add_api_resource(ProfessionalLinking, '/professional/link')
+add_api_resource(ProfessionalPatientSessions, '/professional/sessions')
+
 add_api_resource(PatientLinking, '/patient/link')
+add_api_resource(PatientSessions, '/patient/sessions')
+
+add_api_resource(Video, '/video')
 
 add_api_resource(AccessTest, '/accesstest')
 

@@ -54,15 +54,12 @@ except:
 if TYPE_CHECKING:
     from backend.database.column_types import Session
 
-_Base = Base
-Base = (Base, Gettable)
-
 
 def init_app(app):
     db.init_app(app)
 
 
-class Authorization(*Base):  #type: ignore
+class Authorization(Base, Gettable):
     id = Column(Index, primary_key=True)
     email = Column(StringSmall, unique=True)
     password = Column(Binary(64))
@@ -95,7 +92,7 @@ class Authorization(*Base):  #type: ignore
         return jwt_obj.to_jwt()
 
 
-class Patient(*Base):  # type: ignore
+class Patient(Base, Gettable):
     # required
     id = Column(Index, primary_key=True)
     name = Column(StringSmall)
@@ -105,6 +102,7 @@ class Patient(*Base):  # type: ignore
     # relationships
     authorization: Authorization = relationship(Authorization, back_populates='_patient')
     _links: List[Link] = relationship('Link', back_populates='patient')
+    sessions: List[Session] = relationship('Session', back_populates='patient')
 
     @property
     def links(self):
@@ -133,7 +131,7 @@ class Patient(*Base):  # type: ignore
         return jwt_obj.to_jwt()
 
 
-class Professional(*Base):  # type: ignore
+class Professional(Base, Gettable):
     # required
     id = Column(Index, primary_key=True)
     name = Column(StringSmall)
@@ -175,7 +173,7 @@ class Professional(*Base):  # type: ignore
         return jwt_obj.to_jwt()
 
 
-class Link(*Base):  # type: ignore
+class Link(Base, Gettable):
     id = Column(Index, primary_key=True)
     patient_id = Column(Index, ForeignKey(Patient.id))
     professional_id = Column(Index, ForeignKey(Professional.id))
@@ -184,3 +182,22 @@ class Link(*Base):  # type: ignore
     # relationships
     patient: Patient = relationship(Patient, back_populates='_links')
     professional: Professional = relationship(Professional, back_populates='_links')
+
+
+class Session(Base, Gettable):
+    id = Column(Index, primary_key=True)
+    date = Column(DateTime)
+    patient_id = Column(Index, ForeignKey(Patient.id))
+
+    # relationships
+    patient: Patient = relationship(Patient, back_populates='sessions')
+    videos: List[VideoInfo] = relationship('VideoInfo', back_populates='session')
+
+
+class VideoInfo(Base, Gettable):
+    id = Column(Index, primary_key=True)
+    path = Column(StringSmall, unique=True)
+    session_id = Column(Index, ForeignKey(Session.id))
+
+    # relationships
+    session: Session = relationship(Session, back_populates='videos')
