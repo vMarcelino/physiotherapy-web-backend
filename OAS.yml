@@ -143,7 +143,7 @@ paths:
           - cpf
           type: object
       responses:
-        '200':
+        '201':
           description: Invite created
         '400':
           description: missing fields
