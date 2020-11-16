@@ -19,7 +19,7 @@ class ProfessionalLinking(flask_restful.Resource):
         Tuple[Literal['Only professionals are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
         Tuple[Literal['Patient not found'], Literal[HTTPStatus.NOT_FOUND]],
         Tuple[Literal['Invite already exists'], Literal[HTTPStatus.CONFLICT]],
-        Tuple[Literal['Invite created'], Literal[HTTPStatus.OK]],
+        Tuple[Literal['Invite created'], Literal[HTTPStatus.CREATED]],
         ]:
         if not isinstance(authorization.owner, db.Professional):
             return 'Only professionals are allowed to access this resource', HTTPStatus.FORBIDDEN
@@ -39,7 +39,7 @@ class ProfessionalLinking(flask_restful.Resource):
         link = db.Link(patient=patient, professional=professional)
         db.db.session.add(link)
         db.db.session.commit()
-        return 'Invite created', HTTPStatus.OK
+        return 'Invite created', HTTPStatus.CREATED
 
     @helper_functions.args_from_urlencoded
     @helper_functions.inject_user_from_authorization
