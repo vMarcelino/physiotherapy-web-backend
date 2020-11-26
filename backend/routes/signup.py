@@ -1,5 +1,5 @@
 from backend.routes import TokenObject
-from typing_extensions import Literal
+from typing import Literal
 from backend.jwt_classes.access_levels import AccessLevels
 from typing import Optional, Sequence, Tuple, Union
 import flask_restful

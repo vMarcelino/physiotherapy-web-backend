@@ -67,7 +67,7 @@ paths:
         '403':
           description: Only patients are allowed to access this resource
         '404':
-          description: Professional not found
+          description: Invite not found
         '409':
           description: Professional already linked
       tags:
@@ -118,6 +118,7 @@ paths:
           description: Email already in use
       tags:
       - PatientSignup
+  /patient/upload: {}
   /professional/link:
     get:
       parameters: []
@@ -240,5 +241,6 @@ tags:
 - name: ProfessionalPatientSessions
 - name: PatientLinking
 - name: PatientSessions
+- name: PatientVideoInput
 - name: Video
 - name: AccessTest

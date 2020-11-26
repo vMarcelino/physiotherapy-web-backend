@@ -2,6 +2,7 @@ import datetime
 
 
 def _datify(date: datetime.datetime):
+    '''Converts a date-and-time datetime to a date-only datetime'''
     if date.tzinfo is None:
         date = date.replace(tzinfo=datetime.timezone.utc)
     return date.replace(hour=0, minute=0, second=0, microsecond=0)

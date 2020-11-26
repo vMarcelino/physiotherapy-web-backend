@@ -1,4 +1,4 @@
-from typing_extensions import Literal, TypedDict
+from typing import Literal, TypedDict
 from backend.jwt_classes.access_levels import AccessLevels
 from backend.constants import CONSTANTS
 import flask_restful
@@ -46,3 +46,5 @@ class Login(flask_restful.Resource):
             print('User not found')
 
         return 'Wrong username or password', HTTPStatus.UNAUTHORIZED
+
+    put = post

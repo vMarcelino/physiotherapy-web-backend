@@ -1,6 +1,6 @@
 import flask
 import flask_restful
-from typing_extensions import Literal
+from typing import Literal
 from backend import jwt_classes
 from backend.database import VideoInfo
 from backend.helper_functions.decorators import inject_user_from_authorization
@@ -44,7 +44,7 @@ class Video(flask_restful.Resource):
         if video is None:
             return 'Video not found', HTTPStatus.NOT_FOUND
 
-        return flask.send_from_directory('./videos', video.path)
+        return flask.send_from_directory(CONSTANTS.video_folder, video.path)
 
 
 class PatientSessions(flask_restful.Resource):

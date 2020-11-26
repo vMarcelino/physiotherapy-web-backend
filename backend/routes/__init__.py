@@ -1,4 +1,4 @@
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 
 class TokenObject(TypedDict):
@@ -19,7 +19,7 @@ from backend.routes.logout import Logout
 from backend.routes.signup import PatientSignup, ProfessionalSignup
 
 from backend.routes.professional import ProfessionalLinking
-from backend.routes.patient import PatientLinking
+from backend.routes.patient import PatientLinking, PatientVideoInput
 
 api = flask_restful.Api()
 
@@ -51,6 +51,7 @@ add_api_resource(ProfessionalPatientSessions, '/professional/sessions')
 
 add_api_resource(PatientLinking, '/patient/link')
 add_api_resource(PatientSessions, '/patient/sessions')
+add_api_resource(PatientVideoInput, '/patient/upload')
 
 add_api_resource(Video, '/video')
 
