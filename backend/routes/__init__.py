@@ -5,7 +5,7 @@ class TokenObject(TypedDict):
     token: str
 
 
-from backend.routes.video import PatientSessions, ProfessionalPatientSessions, Video
+from backend.routes.video import PatientSessions, ProfessionalPatientSessions, Thumbnail, Video
 import flask
 import flask_restful
 from travel_backpack.decorators import decorate_all_methods
@@ -54,6 +54,7 @@ add_api_resource(PatientSessions, '/patient/sessions')
 add_api_resource(PatientVideoInput, '/patient/upload')
 
 add_api_resource(Video, '/video')
+add_api_resource(Thumbnail, '/thumbnail')
 
 add_api_resource(AccessTest, '/accesstest')
 

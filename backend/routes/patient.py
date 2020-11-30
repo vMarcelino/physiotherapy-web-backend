@@ -75,38 +75,50 @@ class PatientVideoInput(flask_restful.Resource):
         patient: db.Patient = authorization.owner
         now = helper_functions.datetime_now()
 
-        output_filename = str(uuid.uuid4()) + '-'
+        _output_filename = str(uuid.uuid4()) + '-'
         count = 0
-        make_filename = lambda: output_filename + str(count) + '.mp4'
-        while os.path.isfile(os.path.join(CONSTANTS.video_folder, make_filename())):
+        make_video_filename = lambda: _output_filename + str(count) + '.mp4'
+        make_thumb_filename = lambda: _output_filename + str(count) + '.png'
+        while os.path.isfile(os.path.join(CONSTANTS.video_folder, make_video_filename())):
             count += 1
-        output_filename = make_filename()
+        output_video_filename = make_video_filename()
+        output_thumb_filename = make_thumb_filename()
 
         requestDict = flask.request.form.to_dict()
         print(requestDict.keys())
         data = []
+        thumb = None
         for key, value in requestDict.items():
-            if 'frame' in key:
+            if key.startswith('frame'):
                 img_data = base64.b64decode(value)
+                if thumb is None:
+                    thumb = img_data
                 nparr = np.fromstring(img_data, np.uint8)  # type: ignore
                 img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                 # cv2.imshow('', img)
                 # cv2.waitKey(0)
                 data.append(img)
+        if thumb is None:
+            raise Exception('Thumb cannot be none. Are there any frames?')
 
         height, width, channels = data[0].shape
 
         # Define the codec and create VideoWriter object
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Be sure to use lower case
-        out = cv2.VideoWriter(os.path.join(CONSTANTS.video_folder, output_filename), fourcc, 30, (width, height))
+        # fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Be sure to use lower case # does not work on the web
+        # fourcc = cv2.VideoWriter_fourcc(*'H264')
+        fourcc = 0x00000021  # this is for H264, but there seems to be some weird problem with using the 4-byte notation
+        out = cv2.VideoWriter(os.path.join(CONSTANTS.video_folder, output_video_filename), fourcc, 30, (width, height))
 
         for image in data:
             out.write(image)  # Write out frame to video
 
         out.release()
 
+        with open(os.path.join(CONSTANTS.thumbnail_folder, output_thumb_filename), "wb") as f:
+            f.write(thumb)
+
         now = helper_functions.datetime_now()
-        video_info = db.VideoInfo(path=output_filename, date=now, patient=patient)
+        video_info = db.VideoInfo(video_path=output_video_filename, thumbnail_path=output_thumb_filename, date=now, patient=patient)
 
         sess = db.db.session
         sess.add(video_info)

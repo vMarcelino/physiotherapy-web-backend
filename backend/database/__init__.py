@@ -186,7 +186,8 @@ class Link(Base, Gettable):
 
 class VideoInfo(Base, Gettable):
     id = Column(Index, primary_key=True)
-    path = Column(StringSmall, unique=True)
+    video_path = Column(StringSmall, unique=True)
+    thumbnail_path = Column(StringSmall, unique=True)
     date = Column(DateTime)
     patient_id = Column(Index, ForeignKey(Patient.id))
 

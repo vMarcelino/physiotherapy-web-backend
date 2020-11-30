@@ -74,7 +74,11 @@ paths:
       - PatientLinking
   /patient/sessions:
     get:
-      parameters: []
+      parameters:
+      - in: query
+        name: time_delta
+        required: true
+        type: number
       responses:
         '200':
           description: typing.Dict[str, typing.List[typing.Dict[str, int]]]
@@ -163,6 +167,10 @@ paths:
         name: patient_token
         required: true
         type: string
+      - in: query
+        name: time_delta
+        required: true
+        type: number
       responses:
         '200':
           description: typing.Dict[str, typing.List[typing.Dict[str, int]]]
@@ -214,6 +222,20 @@ paths:
           description: Email already in use
       tags:
       - ProfessionalSignup
+  /thumbnail:
+    get:
+      parameters:
+      - in: query
+        name: video_id
+        required: true
+        type: integer
+      responses:
+        '400':
+          description: missing fields
+        '404':
+          description: Thumb not found
+      tags:
+      - Thumbnail
   /video:
     get:
       parameters:
@@ -243,4 +265,5 @@ tags:
 - name: PatientSessions
 - name: PatientVideoInput
 - name: Video
+- name: Thumbnail
 - name: AccessTest

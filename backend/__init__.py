@@ -7,6 +7,8 @@ import backend.routes
 def initialize(app, *others_to_initialize):
     if not os.path.isdir(CONSTANTS.video_folder):
         os.makedirs(CONSTANTS.video_folder)
+    if not os.path.isdir(CONSTANTS.thumbnail_folder):
+        os.makedirs(CONSTANTS.thumbnail_folder)
 
     to_initialize = [backend.routes, backend.database, *others_to_initialize]
     for obj in to_initialize:
