@@ -11,3 +11,4 @@ typing-extensions
 Pillow
 requests
 requests-futures
+opencv-python

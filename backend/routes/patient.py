@@ -74,13 +74,6 @@ class PatientVideoInput(flask_restful.Resource):
             return 'Only patients are allowed to access this resource', HTTPStatus.FORBIDDEN
         patient: db.Patient = authorization.owner
         now = helper_functions.datetime_now()
-        today = helper_functions_time._datify(now)
-        q = db.Session.query
-        q = q.filter(db.Session.patient_id == patient.id)
-        q = q.filter(db.Session.date == today)
-        existing_session: Optional[db.Session] = q.one_or_none()
-        if existing_session is None:
-            existing_session = db.Session(date=today, patient=patient)
 
         output_filename = str(uuid.uuid4()) + '-'
         count = 0
@@ -112,10 +105,10 @@ class PatientVideoInput(flask_restful.Resource):
 
         out.release()
 
-        video_info = db.VideoInfo(path=output_filename, session=existing_session)
+        now = helper_functions.datetime_now()
+        video_info = db.VideoInfo(path=output_filename, date=now, patient=patient)
 
         sess = db.db.session
-        sess.add(existing_session)
         sess.add(video_info)
         sess.commit()
 

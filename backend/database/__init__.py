@@ -102,7 +102,7 @@ class Patient(Base, Gettable):
     # relationships
     authorization: Authorization = relationship(Authorization, back_populates='_patient')
     _links: List[Link] = relationship('Link', back_populates='patient')
-    sessions: List[Session] = relationship('Session', back_populates='patient')
+    videos: List[VideoInfo] = relationship('VideoInfo', back_populates='patient')
 
     @property
     def links(self):
@@ -184,20 +184,11 @@ class Link(Base, Gettable):
     professional: Professional = relationship(Professional, back_populates='_links')
 
 
-class Session(Base, Gettable):
+class VideoInfo(Base, Gettable):
     id = Column(Index, primary_key=True)
+    path = Column(StringSmall, unique=True)
     date = Column(DateTime)
     patient_id = Column(Index, ForeignKey(Patient.id))
 
     # relationships
-    patient: Patient = relationship(Patient, back_populates='sessions')
-    videos: List[VideoInfo] = relationship('VideoInfo', back_populates='session')
-
-
-class VideoInfo(Base, Gettable):
-    id = Column(Index, primary_key=True)
-    path = Column(StringSmall, unique=True)
-    session_id = Column(Index, ForeignKey(Session.id))
-
-    # relationships
-    session: Session = relationship(Session, back_populates='videos')
+    patient: Patient = relationship(Patient, back_populates='videos')

@@ -52,7 +52,7 @@ class ProfessionalLinking(flask_restful.Resource):
         professional: db.Professional = authorization.owner
 
         def make_result(link: db.Link) -> TokenObject:
-            jwt = link.professional.to_jwt(subject=authorization, access_level=AccessLevels.personal)
+            jwt = link.patient.to_jwt(subject=authorization, access_level=AccessLevels.personal)
             return {'token': jwt}
 
         return [make_result(link) for link in professional.links], HTTPStatus.OK
