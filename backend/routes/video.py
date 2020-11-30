@@ -51,7 +51,7 @@ class Video(flask_restful.Resource):
 class PatientSessions(flask_restful.Resource):
     @helper_functions.args_from_urlencoded
     @inject_user_from_authorization
-    def get(self, authorization: db.Authorization, time_delta:int)->Union[ \
+    def get(self, authorization: db.Authorization, time_delta:float)->Union[ \
         Tuple[Literal['Only patients are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
         Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]
         ]:
@@ -83,7 +83,7 @@ class PatientSessions(flask_restful.Resource):
 class ProfessionalPatientSessions(flask_restful.Resource):
     @helper_functions.args_from_urlencoded
     @inject_user_from_authorization
-    def get(self, authorization: db.Authorization, patient_token: jwt_classes.Patient[Id], time_delta:int)->Union[ \
+    def get(self, authorization: db.Authorization, patient_token: jwt_classes.Patient[Id], time_delta:float)->Union[ \
         Tuple[Literal['Only professionals are allowed to access this resource'], Literal[HTTPStatus.FORBIDDEN]],
         Tuple[Literal['Patient not found'], Literal[HTTPStatus.NOT_FOUND]],
         Tuple[Dict[str, List[Dict[str, int]]], Literal[HTTPStatus.OK]]
