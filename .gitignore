@@ -125,3 +125,7 @@ local.*
 
 # OpenH lib files
 !libopenh264*
+
+# generated files
+videos
+thumbs

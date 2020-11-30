@@ -47,6 +47,39 @@ class Video(flask_restful.Resource):
 
         return flask.send_from_directory(CONSTANTS.video_folder, video.video_path)
 
+    @helper_functions.args_from_urlencoded
+    @inject_user_from_authorization
+    def delete(self, authorization: db.Authorization, video_id: int)->Union[ \
+        Tuple[Literal['Video not found'], Literal[HTTPStatus.NOT_FOUND]],
+        Tuple[Literal['Video deleted'], Literal[HTTPStatus.OK]],
+        ]:
+
+        owner = authorization.owner
+        video: Optional[db.VideoInfo]
+        if isinstance(owner, db.Professional):
+            q = db.VideoInfo.query
+            q = q.join(db.VideoInfo.patient)
+            q = q.join(db.Patient._links)
+            q = q.filter(db.VideoInfo.id == video_id)
+            q = q.filter(db.Link.accepted == True)
+            q = q.filter(db.Link.professional_id == owner.id)
+            video = q.one_or_none()
+
+        elif isinstance(owner, db.Patient):
+            q = db.VideoInfo.query
+            q = q.filter(db.VideoInfo.id == video_id)
+            q = q.filter(db.VideoInfo.patient_id == owner.id)
+            video = q.one_or_none()
+        else:
+            raise Exception('Owner expected to be either Patient or Professional')
+
+        if video is None:
+            return 'Video not found', HTTPStatus.NOT_FOUND
+
+        db.Session.delete(video)
+        db.Session.commit()
+        return 'Video deleted', HTTPStatus.OK
+
 
 class Thumbnail(flask_restful.Resource):
     @helper_functions.args_from_urlencoded

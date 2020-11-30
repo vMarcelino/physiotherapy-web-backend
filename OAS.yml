@@ -237,6 +237,21 @@ paths:
       tags:
       - Thumbnail
   /video:
+    delete:
+      parameters:
+      - in: query
+        name: video_id
+        required: true
+        type: integer
+      responses:
+        '200':
+          description: Video deleted
+        '400':
+          description: missing fields
+        '404':
+          description: Video not found
+      tags:
+      - Video
     get:
       parameters:
       - in: query
