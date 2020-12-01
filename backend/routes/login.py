@@ -1,3 +1,4 @@
+from backend import authorization
 from typing import Literal, TypedDict
 from backend.jwt_classes.access_levels import AccessLevels
 from backend.constants import CONSTANTS
@@ -25,14 +26,8 @@ class Login(flask_restful.Resource):
         if user:
             hashed_password = helper_functions.hash_with_salt(password.encode(), user.salt)
             if hashed_password == user.password:
-                user_auth_token = user.to_jwt(subject=user)
                 user_token = user.owner.to_jwt(subject=user, access_level=AccessLevels.private)
-                cookie = f'Authorization={user_auth_token}; HttpOnly; SameSite=Lax'
-                if remember_login:
-                    cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
-                if not CONSTANTS.debug:
-                    cookie += '; secure'
-
+                cookie = authorization.create_cookie(owner= user.owner, remember_login=remember_login)
                 returned_data: LoginReturnType = {'token': user_token, 'type': type(user.owner).__name__}
                 return returned_data, HTTPStatus.OK, {'Set-Cookie': cookie}
             else:

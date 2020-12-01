@@ -1,3 +1,4 @@
+from backend import authorization
 from backend.routes import TokenObject
 from typing import Literal
 from backend.jwt_classes.access_levels import AccessLevels
@@ -39,13 +40,8 @@ class PatientSignup(flask_restful.Resource):
 
                 patient_token = new_user.to_jwt(subject=new_user.authorization_id,
                                                 access_level=AccessLevels.private)  # must be after commit to have id
-                patient_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
 
-                cookie = f'Authorization={patient_auth_token}; HttpOnly; SameSite=Lax'
-                if remember_login:
-                    cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
-                if not CONSTANTS.debug:
-                    cookie += '; secure'
+                cookie = authorization.create_cookie(owner=new_user, remember_login=remember_login)
 
                 return_result: TokenObject = {'token': patient_token}
                 return return_result, HTTPStatus.CREATED, {'Set-Cookie': cookie}
@@ -92,13 +88,8 @@ class ProfessionalSignup(flask_restful.Resource):
                 professional_token = new_user.to_jwt(
                     subject=new_user.authorization_id,
                     access_level=AccessLevels.private)  # must be after commit to have id
-                professional_auth_token = new_user.authorization.to_jwt(subject=new_user.authorization_id)
-
-                cookie = f'Authorization={professional_auth_token}; HttpOnly; SameSite=Lax'
-                if remember_login:
-                    cookie += f"; Max-Age={CONSTANTS.auth_cookie_expiration}"
-                if not CONSTANTS.debug:
-                    cookie += '; secure'
+                    
+                cookie = authorization.create_cookie(owner=new_user, remember_login=remember_login)
 
                 return_result: TokenObject = {'token': professional_token}
                 return return_result, HTTPStatus.CREATED, {'Set-Cookie': cookie}
