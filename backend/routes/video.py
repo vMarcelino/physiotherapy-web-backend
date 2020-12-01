@@ -76,8 +76,8 @@ class Video(flask_restful.Resource):
         if video is None:
             return 'Video not found', HTTPStatus.NOT_FOUND
 
-        db.Session.delete(video)
-        db.Session.commit()
+        db.db.session.delete(video)
+        db.db.session.commit()
         return 'Video deleted', HTTPStatus.OK
 
 

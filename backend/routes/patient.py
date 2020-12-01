@@ -104,9 +104,7 @@ class PatientVideoInput(flask_restful.Resource):
         height, width, channels = data[0].shape
 
         # Define the codec and create VideoWriter object
-        # fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Be sure to use lower case # does not work on the web
-        # fourcc = cv2.VideoWriter_fourcc(*'H264')
-        fourcc = 0x00000021  # this is for H264, but there seems to be some weird problem with using the 4-byte notation
+        fourcc = cv2.VideoWriter_fourcc(*'VP09')
         out = cv2.VideoWriter(os.path.join(CONSTANTS.video_folder, output_video_filename), fourcc, 30, (width, height))
 
         for image in data:

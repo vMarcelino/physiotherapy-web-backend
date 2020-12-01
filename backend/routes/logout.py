@@ -1,3 +1,4 @@
+from backend.constants import CONSTANTS
 import flask_restful
 from typing import List
 from http import HTTPStatus
@@ -8,6 +9,7 @@ import backend.database as db
 
 class Logout(flask_restful.Resource):
     def post(self):
-        return 'Logging out', HTTPStatus.OK, {
-            'Set-Cookie': f'Authorization=null; Max-Age=-1; Secure; HttpOnly; SameSite=Lax'
-        }
+        cookie = f'Authorization=null; Max-Age=-1; HttpOnly; SameSite=Lax'
+        if not CONSTANTS.debug:
+            cookie += '; secure'
+        return 'Logging out', HTTPStatus.OK, {'Set-Cookie': cookie}
