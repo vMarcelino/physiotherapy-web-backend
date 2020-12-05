@@ -97,6 +97,7 @@ class Patient(Base, Gettable):
     id = Column(Index, primary_key=True)
     name = Column(StringSmall)
     cpf = Column(StringSmall, unique=True)
+    game_config = Column(StringBig)
     authorization_id = Column(Index, ForeignKey(Authorization.id))
 
     # relationships
@@ -193,3 +194,5 @@ class VideoInfo(Base, Gettable):
 
     # relationships
     patient: Patient = relationship(Patient, back_populates='videos')
+
+

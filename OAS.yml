@@ -160,6 +160,38 @@ paths:
           description: Invite already exists
       tags:
       - ProfessionalLinking
+  /professional/patient/game-config:
+    get:
+      parameters:
+      - in: query
+        name: patient_token
+        required: true
+        type: string
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - GameConfig
+    post:
+      parameters:
+      - in: body
+        name: parameters
+        required: true
+        schema:
+          properties:
+            parameters:
+              type: object
+            patient_token:
+              type: string
+          required:
+          - patient_token
+          - parameters
+          type: object
+      responses:
+        '400':
+          description: missing fields
+      tags:
+      - GameConfig
   /professional/sessions:
     get:
       parameters:
@@ -276,6 +308,7 @@ tags:
 - name: Logout
 - name: ProfessionalLinking
 - name: ProfessionalPatientSessions
+- name: GameConfig
 - name: PatientLinking
 - name: PatientSessions
 - name: PatientVideoInput

@@ -33,6 +33,7 @@ class PatientSignup(flask_restful.Resource):
                 hashed_password = helper_functions.hash_with_salt(password.encode('utf-8'), salt)
                 new_user = db.Patient(name=name,
                                       cpf=cpf,
+                                      game_config='{}',
                                       authorization=db.Authorization(email=email, password=hashed_password, salt=salt))
 
                 db.db.session.add(new_user)
@@ -88,7 +89,7 @@ class ProfessionalSignup(flask_restful.Resource):
                 professional_token = new_user.to_jwt(
                     subject=new_user.authorization_id,
                     access_level=AccessLevels.private)  # must be after commit to have id
-                    
+
                 cookie = authorization.create_cookie(owner=new_user, remember_login=remember_login)
 
                 return_result: TokenObject = {'token': professional_token}
