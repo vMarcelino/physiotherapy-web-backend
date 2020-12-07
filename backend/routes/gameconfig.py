@@ -48,3 +48,14 @@ class GameConfig(flask_restful.Resource):
         sess.add(patient)
         sess.commit()
         return 'ok', HTTPStatus.OK
+
+
+class PatientGameConfig(flask_restful.Resource):
+    @helper_functions.args_from_urlencoded
+    @helper_functions.inject_user_from_authorization
+    def get(self, authorization: database.Authorization):
+        if not isinstance(authorization.owner, database.Patient):
+            return 'Only patients are allowed to access this resource', HTTPStatus.FORBIDDEN
+        patient: database.Patient = authorization.owner
+
+        return patient.game_config, HTTPStatus.OK

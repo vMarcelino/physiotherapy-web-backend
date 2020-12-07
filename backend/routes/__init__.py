@@ -18,7 +18,7 @@ from backend.routes.logout import Logout
 
 from backend.routes.signup import PatientSignup, ProfessionalSignup
 
-from backend.routes.gameconfig import GameConfig
+from backend.routes.gameconfig import GameConfig, PatientGameConfig
 from backend.routes.professional import ProfessionalLinking
 from backend.routes.patient import PatientLinking, PatientVideoInput
 
@@ -54,6 +54,7 @@ add_api_resource(GameConfig, '/professional/patient/game-config')
 add_api_resource(PatientLinking, '/patient/link')
 add_api_resource(PatientSessions, '/patient/sessions')
 add_api_resource(PatientVideoInput, '/patient/upload')
+add_api_resource(PatientGameConfig, '/patient/game-config')
 
 add_api_resource(Video, '/video')
 add_api_resource(Thumbnail, '/thumbnail')
