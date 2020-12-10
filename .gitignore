@@ -129,6 +129,7 @@ local.*
 # generated files
 videos
 thumbs
+logs
 
 # local environment
 /env
